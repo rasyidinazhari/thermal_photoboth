@@ -1,0 +1,42 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# OS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Build and Temp folders
+dist
+dist-ssr
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.local
+
+# Project specific
+todos.json
+AGENTS.md
+
+# Ignore saved photos but keep the folder structure
+data/photos/*
+!data/photos/.gitkeep
