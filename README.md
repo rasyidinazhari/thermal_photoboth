@@ -2,8 +2,6 @@
 
 Smart Photobooth adalah aplikasi photo booth interaktif berbasis web yang dikembangkan menggunakan **TanStack Start**, **React**, dan **MediaPipe**. Aplikasi ini mendeteksi gestur tangan (5 jari terbuka) untuk secara otomatis mengambil foto, memproses gambar dengan efek animasi *cyber/matrix*, dan mencetak hasilnya secara langsung menggunakan *Thermal Printer*.
 
-Diciptakan oleh **ASIRO** dan didukung oleh **Alfabet Innovation**.
-
 ## 🌟 Fitur Utama
 
 - **Deteksi Gestur Cerdas**: Menggunakan AI (Google MediaPipe) untuk mendeteksi telapak tangan dengan 5 jari terbuka sebagai *trigger* untuk memulai hitung mundur foto.
@@ -67,4 +65,4 @@ Hasil jepretan foto pengguna akan disimpan sementara di direktori `data/photos` 
 
 ## 📄 Lisensi
 
-Hak Cipta (c) ASIRO & Alfabet Innovation. Semua Hak Dilindungi.
+Hak Cipta (c)rasyidinazhari. Semua Hak Dilindungi.
