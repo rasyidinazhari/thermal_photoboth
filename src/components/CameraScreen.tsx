@@ -181,9 +181,26 @@ export function CameraScreen({ onCapture, config }: { onCapture: (rawBlob: Blob,
 
       const finalizeCapture = () => {
         addWatermarkText();
-        canvas.toBlob((finalBlob) => {
+        
+        // Scale down to max 800px width to avoid huge PNG payloads (prevents 413 error)
+        const targetWidth = 800;
+        let scale = 1;
+        let targetHeight = canvas.height;
+        let offscreen = canvas;
+
+        if (canvas.width > targetWidth) {
+          scale = targetWidth / canvas.width;
+          targetHeight = Math.round(canvas.height * scale);
+          offscreen = document.createElement('canvas');
+          offscreen.width = targetWidth;
+          offscreen.height = targetHeight;
+          const offCtx = offscreen.getContext('2d');
+          if (offCtx) offCtx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+        }
+
+        offscreen.toBlob((finalBlob) => {
           if (finalBlob) onCapture(rawBlob, finalBlob)
-        }, 'image/jpeg', 0.9)
+        }, 'image/png')
       }
 
       // Draw frame on top if enabled

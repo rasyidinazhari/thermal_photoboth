@@ -40,10 +40,34 @@ function SettingsPage() {
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
-        setConfig(c => ({
-          ...c,
-          frame: { ...c.frame, imageUrl: reader.result as string }
-        }))
+        // Create an image object to shrink it
+        const img = new Image();
+        img.onload = () => {
+          // Max width 800px to keep base64 string small
+          const targetWidth = 800;
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > targetWidth) {
+            height = Math.round((height * targetWidth) / width);
+            width = targetWidth;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            // Save as compressed base64
+            const compressedBase64 = canvas.toDataURL('image/png');
+            setConfig(c => ({
+              ...c,
+              frame: { ...c.frame, imageUrl: compressedBase64 }
+            }))
+          }
+        };
+        img.src = reader.result as string;
       }
       reader.readAsDataURL(file)
     }
@@ -202,7 +226,7 @@ function SettingsPage() {
               <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-zinc-400 mb-2">
-                    Interface / Alamat (misal: tcp://192.168.1.100 atau /dev/usb/lp0)
+                    Interface / Alamat (misal: tcp://192.168.1.100, /dev/usb/lp0, atau \\.\COM3 untuk Bluetooth)
                   </label>
                   <input 
                     type="text" 

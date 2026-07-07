@@ -6,12 +6,12 @@ export const Route = createFileRoute('/photo/$id')({
 
 function PhotoGalleryPage() {
   const { id } = Route.useParams()
-  const imageUrl = `/uploads/${id}.jpg`
+  const imageUrl = `/uploads/${id}.png`
 
   const handleDownload = () => {
     const a = document.createElement('a')
     a.href = imageUrl
-    a.download = `photobooth-${id}.jpg`
+    a.download = `photobooth-${id}.png`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)

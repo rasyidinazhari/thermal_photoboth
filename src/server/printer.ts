@@ -45,8 +45,75 @@ export async function printPhoto(imagePath: string, config: AppConfig) {
     printer.newLine()
     printer.cut()
 
-    // Execute printing
-    await printer.execute()
+    // Bypass node-thermal-printer's hardcoded 5s timeout for file/COM interfaces
+    let port = config.printer.interface;
+    if (port.startsWith('/dev/tty.')) {
+      // Auto-fix for macOS: tty ports block waiting for DCD, cu ports do not.
+      port = port.replace('/dev/tty.', '/dev/cu.');
+      console.log(`Auto-corrected Mac port to ${port} to prevent hanging`);
+    }
+
+    if (port.startsWith('/') || port.startsWith('\\\\')) {
+      const buffer = printer.buffer; // Access the property directly to avoid "not a function" error
+      
+      console.log(`Prepared print buffer. Size: ${buffer?.length || 0} bytes.`);
+      if (!buffer || buffer.length === 0) {
+        console.error("Buffer is empty, nothing to print!");
+        return { success: false, error: "Buffer kosong" };
+      }
+
+      // We use the serialport library to write to the port on macOS/Linux.
+      import('serialport').then(({ SerialPort }) => {
+        console.log(`Connecting to serial port: ${port} at 115200 baud`);
+        const serialPort = new SerialPort({
+          path: port,
+          baudRate: 115200,
+          autoOpen: false,
+        });
+
+        serialPort.open((err) => {
+          if (err) {
+            console.error('Error opening port:', err.message);
+            return;
+          }
+          console.log('Port opened, writing buffer...');
+          serialPort.write(buffer, (err) => {
+            if (err) {
+              console.error('Error writing to port:', err.message);
+            } else {
+              console.log('=== TRANSFER KE PRINTER SELESAI VIA SERIALPORT ===');
+            }
+            // Close after writing to free the resource
+            setTimeout(() => {
+              serialPort.close();
+            }, 500);
+          });
+        });
+      });
+      
+      printer.clear()
+    } else if (port.startsWith('printer:')) {
+      const printerName = port.replace('printer:', '');
+      const tmpFile = path.join(process.cwd(), 'public', 'tmp_print.bin');
+      fs.writeFileSync(tmpFile, buffer);
+
+      import('child_process').then(({ exec }) => {
+        const cmd = `lpr -P "${printerName}" -o raw "${tmpFile}"`;
+        console.log(`Executing CUPS print command: ${cmd}`);
+        exec(cmd, (error) => {
+          if (error) {
+            console.error("CUPS print error:", error.message);
+          } else {
+            console.log("=== TRANSFER KE PRINTER SELESAI VIA CUPS LPR ===");
+          }
+        });
+      });
+      
+      printer.clear()
+    } else {
+      // For network printers, we can just execute normally (it's fast)
+      printer.execute().catch((err) => console.error("Print execution failed:", err));
+    }
     console.log("Print job executed successfully.")
     
     return { success: true }
@@ -65,7 +132,7 @@ export const triggerPrintPhoto = createServerFn({ method: 'POST' })
         return { success: false, error: "Printer is not enabled in settings." }
       }
 
-      const filepath = path.join(process.cwd(), 'public', 'uploads', `${data.id}.jpg`)
+      const filepath = path.join(process.cwd(), 'public', 'uploads', `${data.id}.png`)
       if (!fs.existsSync(filepath)) {
         return { success: false, error: "Photo not found." }
       }

@@ -9,6 +9,7 @@
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
     "build": "vite build",
+    "start": "node .output/server/index.mjs",
     "preview": "vite preview",
     "test": "vitest run"
   },
@@ -26,6 +27,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "serialport": "^13.0.0",
     "tailwindcss": "^4.1.18",
     "uuid": "^14.0.0"
   },

@@ -40,3 +40,7 @@ AGENTS.md
 # Ignore saved photos but keep the folder structure
 data/photos/*
 !data/photos/.gitkeep
+
+# AI Agents & Forge
+.agents
+.forge
